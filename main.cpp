@@ -1,11 +1,18 @@
 #include <stdio.h>
 #include "netlib.h"
 
-using namespace std;
-
 int main()
 {
-    Address g("example.com", 80);
-    printf("%s\n", g.getAddress());
+    TCPListener ls(Endpoint(27015));
+    byte buf[255];
+    ls.listen();
+    while (true)
+    {
+        TCPClient cl = ls.accept();
+        int recived = cl.read(buf, 255);
+        printf("recived(%d): %s\n", recived, buf);
+        cl.write(buf, recived);
+        cl.close();
+    }
 }
 

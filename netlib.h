@@ -11,25 +11,62 @@
 #include <netdb.h>
 #include <unistd.h>
 
-class Address{
+typedef u_char byte;
+
+class Endpoint{
 public:
-    enum Type {
-        IPv4,
-        IPv6
-    };
-Address(Address::Type addrType = Address::IPv4, in_port_t port = 0);
-Address(const char*, in_port_t port);
-const char* getAddress() const;
-const in_port_t getPort() const;
+enum Type {
+    IPv4,
+    IPv6
+};
+
+Endpoint(in_port_t port = 0, Endpoint::Type addrType = Endpoint::IPv4 );
+Endpoint(Endpoint::Type addrType, const sockaddr* endpoint);
+Endpoint(const char*, in_port_t port);
+
+const char* getAddressStr();
+in_port_t getPort() const;
+bool isErrorExist() const;
+int getAFtype() const;
+Endpoint::Type getType() const;
+const sockaddr* getRawStruct() const;
+
 private:
-char addr_str_[INET6_ADDRSTRLEN] = {0};
+char addrStr_[INET6_ADDRSTRLEN] = {0};
 union{
     sockaddr_in addrV4;
     sockaddr_in6 addrV6;
-}addr_data_;
-Type addr_type_;
+} addrData_;
+Type addrType_;
 in_port_t port_;
-bool error_exist;
+bool errorExist_;
+};
+
+class TCPClient{
+public:
+    TCPClient();
+    TCPClient(int socket, const Endpoint& endpoint);
+    size_t write(byte *buf, size_t size);
+    size_t read(byte *buf, size_t size);
+    void close();
+
+private:
+    int socket_;
+    bool enable_;
+    Endpoint endpoint_;
+};
+
+class TCPListener{
+public:
+    const static int defQueueSize = 10;
+    TCPListener(const Endpoint& endpoint = Endpoint());
+    bool listen(int queueSize = defQueueSize);
+    TCPClient accept();
+
+ private:
+    int socket_;
+    Endpoint endpoint_;
+    bool errorExist_;
 };
 
 

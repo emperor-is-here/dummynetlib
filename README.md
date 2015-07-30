@@ -1,4 +1,5 @@
 #dummynetlib
 
 Current process:
- - Address class
+ - Endpoint class
+ - TCPClient\TCPListener (very basic)
