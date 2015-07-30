@@ -1,5 +1,5 @@
 #dummynetlib
 
-Current process:
+Current progress:
  - Endpoint class
  - TCPClient\TCPListener (very basic)
