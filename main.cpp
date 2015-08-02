@@ -8,11 +8,17 @@ int main()
     ls.listen();
     while (true)
     {
+        printf("%d\n", ls.endpoint_.getPort());
         TCPClient cl = ls.accept();
-        int recived = cl.read(buf, 255);
-        printf("recived(%d): %s\n", recived, buf);
-        cl.write(buf, recived);
-        cl.close();
+        if (cl.isValid())
+        {
+            int recived = cl.read(buf, 255);
+            printf("recived(%d): %s\n", recived, buf);
+            cl.write(buf, recived);
+            printf("recived(%d): %s\n", recived, buf);
+            cl.write(buf, recived);
+            cl.close();
+        }
     }
 }
 

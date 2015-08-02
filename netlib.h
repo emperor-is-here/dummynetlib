@@ -46,13 +46,15 @@ class TCPClient{
 public:
     TCPClient();
     TCPClient(int socket, const Endpoint& endpoint);
-    size_t write(byte *buf, size_t size);
-    size_t read(byte *buf, size_t size);
+    bool send(byte *buf, size_t size, size_t* sent = nullptr);
+    bool recive(byte *buf, size_t size);
+    int bytesAvialable();
     void close();
+    bool isValid() const;
 
 private:
     int socket_;
-    bool enable_;
+    bool valid_;
     Endpoint endpoint_;
 };
 
@@ -62,10 +64,10 @@ public:
     TCPListener(const Endpoint& endpoint = Endpoint());
     bool listen(int queueSize = defQueueSize);
     TCPClient accept();
-
+ Endpoint endpoint_;
  private:
     int socket_;
-    Endpoint endpoint_;
+
     bool errorExist_;
 };
 

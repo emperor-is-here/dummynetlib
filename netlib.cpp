@@ -2,35 +2,60 @@
 
 
 TCPClient::TCPClient():
-enable_(false)
+valid_(false)
 {
 }
 
 TCPClient::TCPClient(int socket, const Endpoint& endpoint):
 socket_(socket),
-enable_(true),
+valid_(true),
 endpoint_(endpoint)
 {
 }
 
-size_t TCPClient::write(byte *buf, size_t size)
+int TCPClient::send(byte *buf, size_t size, size_t* sent = nullptr)
 {
-    if (!enable_)
+    if (!valid_)
         return false;
-    return send(socket_, buf, size, 0);
+    int bsent = 0;
+    int bleft = size;
+    int n;
+    while (bsent < size) // send pice by pice till end or error
+    {
+        n = send(socket_, buf + bsent, bleft);
+        if (n == -1) // en error
+            break;
+        bsent += n;
+        bleft -= n;
+    }
+    if (sent != nullptr)
+        *sent = bsent;
+    return (n == -1) ? false : true;
 }
 
-size_t TCPClient::read(byte *buf, size_t size)
+bool TCPClient::recive(byte *buf, size_t size)
 {
-    if (!enable_)
+    if (!valid_)
         return false;
     return recv(socket_, buf, size, 0);
+}
+
+int TCPClient::bytesAvialable()
+{
+    int count;
+    ioctl(fd, FIONREAD, &count);
+    return count;
 }
 
 void TCPClient::close()
 {
     ::close(socket_);
-    enable_ = false;
+    valid_ = false;
+}
+
+bool TCPClient::isValid() const
+{
+    return valid_;
 }
 
 
